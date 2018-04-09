@@ -1,5 +1,6 @@
 package sentencesimilarity;
 
+import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
@@ -22,18 +23,27 @@ public class GenerateTestResults {
         vectors.setTokenizerFactory(t);
         vectors.getConfiguration().setIterations(1);
         System.out.println("Testing");
-        CSVReader reader=new CSVReader(new FileReader(TrainSentenceSimilarity.path+"\\test.csv"));
+        BufferedReader reader=new BufferedReader(new FileReader(TrainSentenceSimilarity.path+"\\test.csv"));
         PrintWriter pw=new PrintWriter(new BufferedWriter(new FileWriter(TrainSentenceSimilarity.path+"\\outputs.csv")));
         int ct=0,r=0,incrrct=0,unavailable=0;
-        String rd[]=null;
+        CSVParser parser=new CSVParser();
+        String rd=null;
         do
         {
-            rd=reader.readNext();
-            if(rd==null || rd.length<3)
+            rd=reader.readLine();
+            if(rd==null)
                 continue;
-            System.out.println(rd.length);
-            System.out.println(rd[0]+" "+rd[1]+" "+rd[2]);
-            String s1[]=rd;
+            //System.out.println(rd.length);
+            //System.out.println(rd[0]+" "+rd[1]+" "+rd[2]);
+            String s1[]=null;
+            try {
+                s1 = parser.parseLine(rd);
+            }
+            catch(Exception e)
+            {
+                unavailable++;
+                continue;
+            }
             if(s1[0].equals("test_id"))
                 continue;
             INDArray i11=null,i22=null;
@@ -52,6 +62,8 @@ public class GenerateTestResults {
                 continue;
             }
             ct++;
+            if(ct>10000 && ct%10000==0)
+                System.out.println(ct);
         }
         while(rd!=null);
         reader.close();
