@@ -53,6 +53,8 @@ public class GenerateTestResults {
                 i22 = vectors.inferVector(s1[2]);
                 //String i11s=vecToCSV(i11),i22s=vecToCSV(i22);
                 double similar=Transforms.cosineSim(i11,i22);
+                //Converting to range [0,1]
+                similar=(similar+1)/2;
                 pw.println(id+","+similar);
 
             }
